@@ -1,6 +1,10 @@
 -- SPDX-License-Identifier: MIT
 -- (c) ppr_minty 2025
 
+--- Convenience functions for tables.
+-- @module mfwk.table
+-- @alias mod
+
 local mod = {}
 
 -- Cache
@@ -23,6 +27,19 @@ local cache = {
 }
 
 -- Functions
+
+--- Checks whether `tbl` contains `obj`.
+-- @tparam table tbl Table to check.
+-- @param obj Value to search for.
+-- @return bool Does `tbl` contain `obj`?
+function mod.Contains( tbl, obj )
+    for _, v in pairs( tbl ) do if ( v == obj ) then return true end end
+    return false
+end
+
+--- Counts the number of entries in `tbl`.
+-- @tparam table tbl Table to count entries of.
+-- @treturn number Amount of entries in `tbl`.
 function mod.Count( tbl )
     local count = 0
     for _, _ in pairs( tbl ) do count = count + 1 end
@@ -30,6 +47,11 @@ function mod.Count( tbl )
     return count
 end
 
+--- Filters `tbl`, given a `filter` function.
+-- Assumes `tbl` is numerically and sequentially indexed.
+-- @tparam table tbl Table to filter.
+-- @tparam func filter Filter function, e.g. `function( v ) return ( type( v ) == "string" ) end` to filter out all strings.
+-- @treturn table Filtered results.
 function mod.Filter( tbl, filter )
     local result = {}
 
@@ -42,56 +64,10 @@ function mod.Filter( tbl, filter )
     return result
 end
 
-function mod.Sort( tbl, sorter )
-    local result = {}
-
-    for i, v in ipairs( tbl ) do
-        local count = #result
-        local index = ( count + 1 )
-
-        for j = count, 1, -1 do
-            if sorter( v, result[ j ] ) then
-                index = j - 1
-                break
-            end
-        end
-
-        table_insert( result, index, v )
-    end
-
-    return result
-end
-
-function mod.Find( needle, root, name, exclude )
-    root = root or _G
-    exclude = exclude or {}
-
-    exclude[ root ] = true
-
-    local result = {}
-
-    -- Single depth pass
-    for k, v in pairs( root ) do
-        if types_IsString( k ) then
-            if string_find( string_lower( k ), string_lower( needle ) ) then
-                local name = ( name and ( name .. '.' .. k ) or k )
-                result[ name ] = tostring( v )
-            end
-        end
-    end
-
-    -- Recursive pass
-    for k, v in pairs( root ) do
-        if types_IsString( k ) and types_IsTable( v ) and not exclude[ v ] then
-            for p, q in pairs( mod.Find( needle, v, ( name and ( name .. '.' .. k ) or k ), exclude ) ) do
-                result[ p ] = q
-            end
-        end
-    end
-
-    return result
-end
-
+--- Finds the fully qualified name of `tbl`.
+-- E.g. `local tbl = mfwk.table; mfwk.table.FindName( tbl )` would output "mfwk.table".
+-- @tparam table tbl Table to find the name of.
+-- @treturn string Name of `tbl`, or `nil` if it could not be found.
 function mod.FindName( tbl, root, name, exclude )
     if cache.name[ tbl ] then return cache.name[ tbl ] end
 
@@ -125,6 +101,10 @@ function mod.FindName( tbl, root, name, exclude )
     end
 end
 
+--- Finds the root table containing `tbl`.
+-- E.g. `local tbl = mfwk.table; mfwk.table.FindParent( tbl )` would output `mfwk`.
+-- @tparam table tbl Table to find the parent table of.
+-- @treturn table Parent table, or `nil` if it could not be found.
 function mod.FindParent( tbl, root, exclude )
     if cache.parent[ tbl ] then return unpack( cache.parent[ tbl ] ) end
 
@@ -153,6 +133,11 @@ function mod.FindParent( tbl, root, exclude )
     end
 end
 
+--- Removes an entry from `tbl`, by number index or value.
+-- Assumes `tbl` is numerically and sequentially indexed.
+-- @tparam table tbl Table to remove from.
+-- @param kv Number index, or value.
+-- @return Removed value, or nil if the index was invalid/value could not be found.
 function mod.Remove( tbl, kv )
     if types_IsNumber( kv ) then return table_remove( tbl, kv ) end
     
@@ -161,6 +146,35 @@ function mod.Remove( tbl, kv )
     end
 end
 
+--- Sorts `tbl`, given a `sorter` function.
+-- Assumes `tbl` is numerically and sequentially indexed.
+-- @tparam table tbl Table to sort.
+-- @tparam func sorter Sorting function, e.g. `function( a, b ) return ( #a < #b ) end` to sort by length (ascending).
+-- @treturn table Sorted results.
+function mod.Sort( tbl, sorter )
+    local result = {}
+
+    for i, v in ipairs( tbl ) do
+        local count = #result
+        local index = ( count + 1 )
+
+        for j = count, 1, -1 do
+            if sorter( v, result[ j ] ) then
+                index = j - 1
+                break
+            end
+        end
+
+        table_insert( result, index, v )
+    end
+
+    return result
+end
+
+--- Seperates the values of nested tables in `tbl` into separate tables.
+-- Assumes `tbl` is numerically and sequentially indexed.
+-- @tparam table tbl Table to unzip.
+-- @treturn table Unzipped results.
 function mod.Unzip( tbl )
     local unzipped = {}
 

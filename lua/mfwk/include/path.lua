@@ -7,7 +7,9 @@ local mod = {}
 local string_sub        = string.sub
 
 -- Constants
-local STRING_EMPTY      = ""
+local EXTENSION_SEPARATOR   = "."
+local PATH_SEPARATOR        = "/"
+local STRING_EMPTY          = ""
 
 -- Functions: utility
 function mod.Combine( ... )
@@ -17,10 +19,10 @@ function mod.Combine( ... )
     local path = nil
     
     for i, v in ipairs( args ) do
-        if ( i == count ) and ( v[ 1 ] == '.' ) then
+        if ( i == count ) and ( v[ 1 ] == EXTENSION_SEPARATOR ) then
             path = ( path and ( path .. v ) or v )
         elseif v and ( v ~= STRING_EMPTY ) then
-            path = ( path and ( path .. '/' .. v ) or v )
+            path = ( path and ( path .. PATH_SEPARATOR .. v ) or v )
         end
     end
 
@@ -29,7 +31,7 @@ end
 
 function mod.Directory( path )
     for i = #path, 1, -1 do
-        if ( path[ i ] == '/' ) then
+        if ( path[ i ] == PATH_SEPARATOR ) then
             return string_sub( path, 1, i - 1 )
         end
     end
@@ -39,7 +41,7 @@ end
 
 function mod.File( path )
     for i = #path, 1, -1 do
-        if ( path[ i ] == '/' ) then
+        if ( path[ i ] == PATH_SEPARATOR ) then
             return string_sub( path, i + 1 )
         end
     end
@@ -53,7 +55,7 @@ end
 
 function mod.WithoutExtension( path )
     for i = #path, 1, -1 do
-        if ( path[ i ] == '.' ) then
+        if ( path[ i ] == EXTENSION_SEPARATOR ) then
             return string_sub( path, 1, i - 1 )
         end
     end

@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/mfwk.string.html">mfwk.string</a></li>
+  <li><strong>mfwk.table</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>mfwk.table</code></h1>
+<p>Convenience functions for tables.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Contains">Contains(tbl, obj)</a></td>
+	<td class="summary">Checks whether <code>tbl</code> contains <code>obj</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Count">Count(tbl)</a></td>
+	<td class="summary">Counts the number of entries in <code>tbl</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Filter">Filter(tbl, filter)</a></td>
+	<td class="summary">Filters <code>tbl</code>, given a <code>filter</code> function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FindName">FindName(tbl)</a></td>
+	<td class="summary">Finds the fully qualified name of <code>tbl</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FindParent">FindParent(tbl)</a></td>
+	<td class="summary">Finds the root table containing <code>tbl</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Remove">Remove(tbl, kv)</a></td>
+	<td class="summary">Removes an entry from <code>tbl</code>, by number index or value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Sort">Sort(tbl, sorter)</a></td>
+	<td class="summary">Sorts <code>tbl</code>, given a <code>sorter</code> function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Unzip">Unzip(tbl)</a></td>
+	<td class="summary">Seperates the values of nested tables in <code>tbl</code> into separate tables.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Contains"></a>
+    <strong>Contains(tbl, obj)</strong>
+    </dt>
+    <dd>
+    Checks whether <code>tbl</code> contains <code>obj</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to check.
+        </li>
+        <li><span class="parameter">obj</span>
+         Value to search for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        bool Does <code>tbl</code> contain <code>obj</code>?
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Count"></a>
+    <strong>Count(tbl)</strong>
+    </dt>
+    <dd>
+    Counts the number of entries in <code>tbl</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to count entries of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Amount of entries in <code>tbl</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Filter"></a>
+    <strong>Filter(tbl, filter)</strong>
+    </dt>
+    <dd>
+    Filters <code>tbl</code>, given a <code>filter</code> function.
+ Assumes <code>tbl</code> is numerically and sequentially indexed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to filter.
+        </li>
+        <li><span class="parameter">filter</span>
+            <span class="types"><span class="type">func</span></span>
+         Filter function, e.g. <code>function( v ) return ( type( v ) == &quot;string&quot; ) end</code> to filter out all strings.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        Filtered results.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FindName"></a>
+    <strong>FindName(tbl)</strong>
+    </dt>
+    <dd>
+    Finds the fully qualified name of <code>tbl</code>.
+ E.g. <code>local tbl = mfwk.table; mfwk.table.FindName( tbl )</code> would output "mfwk.table".
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to find the name of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Name of <code>tbl</code>, or <code>nil</code> if it could not be found.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FindParent"></a>
+    <strong>FindParent(tbl)</strong>
+    </dt>
+    <dd>
+    Finds the root table containing <code>tbl</code>.
+ E.g. <code>local tbl = mfwk.table; mfwk.table.FindParent( tbl )</code> would output <code>mfwk</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to find the parent table of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        Parent table, or <code>nil</code> if it could not be found.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Remove"></a>
+    <strong>Remove(tbl, kv)</strong>
+    </dt>
+    <dd>
+    Removes an entry from <code>tbl</code>, by number index or value.
+ Assumes <code>tbl</code> is numerically and sequentially indexed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to remove from.
+        </li>
+        <li><span class="parameter">kv</span>
+         Number index, or value.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Removed value, or nil if the index was invalid/value could not be found.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Sort"></a>
+    <strong>Sort(tbl, sorter)</strong>
+    </dt>
+    <dd>
+    Sorts <code>tbl</code>, given a <code>sorter</code> function.
+ Assumes <code>tbl</code> is numerically and sequentially indexed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to sort.
+        </li>
+        <li><span class="parameter">sorter</span>
+            <span class="types"><span class="type">func</span></span>
+         Sorting function, e.g. <code>function( a, b ) return ( #a &lt; #b ) end</code> to sort by length (ascending).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        Sorted results.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Unzip"></a>
+    <strong>Unzip(tbl)</strong>
+    </dt>
+    <dd>
+    Seperates the values of nested tables in <code>tbl</code> into separate tables.
+ Assumes <code>tbl</code> is numerically and sequentially indexed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Table to unzip.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        Unzipped results.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-06-17 20:49:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

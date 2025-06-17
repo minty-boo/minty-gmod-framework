@@ -5,6 +5,7 @@ local mod = mfwk.Module()
 
 mod.autocomplete    = {}
 mod.transform       = {}
+mod.validate        = {}
 
 -- Constants
 local TAG               = "mfwk.commands.Execute"
@@ -15,7 +16,7 @@ local debug_getlocal    = debug.getlocal
 local ipairs            = ipairs
 local pairs             = pairs
 local player_FindByName = mfwk.player.FindByName
-local player_GetAll     = player.GetAll
+local setmetatable      = setmetatable
 local string_BeginsWith = mfwk.string.BeginsWith
 local string_Split      = mfwk.string.Split
 local string_find       = string.find
@@ -30,24 +31,29 @@ local types_IsTable     = mfwk.types.IsTable
 local unpack            = unpack
 
 -- Variables
-local index = {
-    command = {},
-    mdl     = {},
+local index     = {
+    command     = {},
+    commands    = {},
 }
 
-local meta  = {
-    command = {},
+local meta      = {
+    command     = {},
+    commands    = {},
 }
 
-local registry = {}
+local registry  = {}
+
+local lut           = {
+    autocomplete    = {},
+    transform       = {},
+    validate        = {},
+}
 
 -- Utility: command
 local function cmd_autocomplete( cmd, args_str, args )
-    local result = {}
-    if ( not cmd.__autocomplete ) then return result end
-
-    local args_count = #args
-    local completer = cmd.__autocomplete[ args_count - 1 ]
+    local result        = {}
+    local args_count    = #args
+    local completer     = cmd.__autocomplete[ args_count - 1 ]
 
     if ( not completer ) then return result end
 
@@ -62,7 +68,10 @@ local function cmd_autocomplete( cmd, args_str, args )
 
     -- Autocomplete callback
     if types_IsFunction( completer ) then
-        for i, v in ipairs( completer( args[ args_count ] ) ) do
+        local completions = completer( args[ args_count ] )
+        if ( not completions ) then return result end
+
+        for i, v in ipairs( completions ) do
             result[ i ] = ( cmd.__prefix .. ' ' .. args[ 1 ] .. ' ' .. v )
         end
 
@@ -76,17 +85,17 @@ local function cmd_execute_server( cmd, ply, args )
 
 end
 
-local function cmd_execute( command, cmd, ply, args_str, args )
+local function cmd_execute( command, cmd, ply, args, args_str )
+    if CLIENT and command.__server then return end
+
     -- Transform args
-    if command.__transform then
-        for i, fn in ipairs( cmd.__transform ) do
-            args[ i ] = fn( args[ i ] )
-        end
+    for i, fn in ipairs( command.__transform ) do
+        args[ i ] = fn( args[ i ] )
     end
 
     -- Set environment and call
-    command.__env.caller = ply
-    command.__env.args = args
+    command.__environment.caller = ply
+    command.__environment.args = args
     command.__callback( unpack( args ) )
 end
 
@@ -127,7 +136,7 @@ local function cmd_register_prefix( prefix )
     end
 
     -- Handler: callback
-    local function handle_sub_callback( ply, cmd, args, args_string )
+    local function handle_sub_callback( ply, cmd, args, args_str )
         local name = args[ 1 ]
         local name_length = #name
 
@@ -155,11 +164,11 @@ local function cmd_register_prefix( prefix )
         end
 
         table_remove( args, 1 )
-        cmd_execute( command, ply, cmd, args, args_string )
+        cmd_execute( command, ply, cmd, args, args_str )
     end
 
     -- Register prefix command
-    concommand.Add( prefix, handle_sub_callback, handle_sub_autocomplete )
+    concommand.Add( prefix, handle_sub_callback, handle_sub_autocomplete, FCVAR_USERINFO )
     registry[ prefix ] = entry
 end
 
@@ -171,46 +180,54 @@ local function cmd_register( cmd )
     table_insert( registry[ cmd.__prefix ].__commands, cmd.__name )
 end
 
-local function cmd_params_string( cmd )
-    local info = debug_getinfo( cmd.__callback, 'u' )
-    local params_string = nil
+local function cmd_params_names( callback )
+    local names = {}
+    local info  = debug_getinfo( callback, 'u' )
 
     for i = 1, info.nparams do
-        local param = ( '<' .. debug_getlocal( cmd.__callback, i ) .. '>' )
+        names[ i ] = debug_getlocal( callback, i )
+    end
+
+    return names, info.isvararg
+end
+
+local function cmd_params_info( callback )
+    local names, is_vararg  = cmd_params_names( callback )
+    local params_string     = nil
+
+    for _, name in ipairs( names ) do
+        local param = ( '<' .. name .. '>' )
         params_string = ( params_string and ( params_string .. ' ' .. param ) or param )
     end
 
-    if info.isvararg then
+    if is_vararg then
         local param = "<...>"
         params_string = ( params_string and ( params_string .. ' ' .. param ) or param )
     end
 
-    return params_string
+    return #names, params_string
 end
 
--- Index: command
-function index.command.Autocomplete( self, ... )
-    self.__autocomplete = { ... }
-    return self
-end
+local function cmd_new( mdl, name, callback )
+    local args_count, params_string = cmd_params_info( callback )
+    local environment               = setmetatable( {}, { __index = _G } )
+    local prefix                    = registry[ mdl ].prefix
 
-function index.command.Transform( self, ... )
-    self.__transform = { ... }
-    return self
-end
+    local cmd           = {
+        __args_count    = args_count,
+        __help          = ( "usage: " .. prefix .. ' ' .. name .. ' ' .. params_string ),
 
--- Index: mdl
-function index.mdl.AddCommand( mdl, name, callback )
-    local cmd       = {
-        __env       = setmetatable( { mod = mdl }, { __index = _G } ),
-        __name      = name,
-        __mdl       = mdl,
-        __prefix    = mdl.__command_prefix,
-        __server    = true,
+        __callback      = setfenv( callback, environment ),
+        __environment   = environment,
+        __name          = name,
+        __module        = mdl,
+        __prefix        = prefix,
+
+        __autocomplete  = {},
+        __optional      = {},
+        __transform     = {},
+        __server        = true,
     }
-
-    cmd.__callback = setfenv( callback, cmd.__env )
-    cmd.__help = ( "usage: " .. cmd.__prefix .. ' ' .. cmd.__name .. ' ' .. cmd_params_string( cmd ) )
 
     cmd = setmetatable( cmd, meta.command )
     cmd_register( cmd )
@@ -220,13 +237,52 @@ end
 
 -- Meta: command
 function meta.command.__call( self, ... )
-    self.__env.caller = nil
-    self.__env.args = { ... }
+    self.__environment.caller = nil
+    self.__environment.args = { ... }
     self.__callback( ... )
 end
 
 function meta.command.__index( self, k )
     if index.command[ k ] then return index.command[ k ] end
+end
+
+-- Meta: commands
+function meta.commands.__index( self, k )
+    if index.commands[ k ] then return index.commands[ k ] end
+    if self.__commands[ k ] then return self.__commands[ k ] end
+end
+
+function meta.commands.__newindex( self, k, v )
+    local cmd = cmd_new( self.__module, string_lower( k ), v )
+
+    -- Infer autocomplete/transform/validate?
+    if registry[ self.__module ].infer then
+        local params_names = cmd_params_names( v )
+
+        for i, name in ipairs( params_names ) do
+            name = string_lower( name )
+
+            local autocomplete  = lut.autocomplete[ name ]
+            local transform     = lut.transform[ name ]
+            local validate      = lut.validate[ name ]
+
+            if autocomplete then cmd.__autocomplete[ i ] = autocomplete end
+            if transform then cmd.__transform[ i ] = transform end
+            if validate then cmd.__validate[ i ] = validate end
+        end
+    end
+
+    -- Register command
+    self.__commands[ k ] = cmd
+end
+
+function meta.commands.New( mdl )
+    local new       = {
+        __commands  = {},
+        __module    = mdl, 
+    }
+
+    return setmetatable( new, meta.commands )
 end
 
 -- Functions: autocomplete
@@ -238,26 +294,22 @@ end
 -- Functions: transform
 function mod.transform.Player( arg )
     local players, _ = player_FindByName( arg )
-    return players[ 1 ]
+    return ( players and players[ 1 ] or nil )
 end
 
+-- Build LUTs
+for k, v in pairs( mod.autocomplete ) do lut.autocomplete[ string_lower( k ) ] = v end
+for k, v in pairs( mod.transform ) do lut.transform[ string_lower( k ) ] = v end
+for k, v in pairs( mod.validate ) do lut.validate[ string_lower( k ) ] = v end
+
 -- Functions: module
-function mod.Constructor( mdl )
-    mdl.__commands = {}
-    mdl.__command_prefix = mdl.__root
+function mod.dependency.Include( mdl )
+    registry[ mdl ] = {
+        infer     = true,
+        prefix    = mdl.__root,
+    }
 
-    -- Register meta-functions
-    mdl:Index( index.mdl )
-
-    -- Register init-env
-    mdl:Init( { autocomplete = mod.autocomplete, transform = mod.transform } )
-
-    -- Register commands
-    if types_IsTable( mdl.commands ) then
-        for k, v in pairs( mdl.commands ) do
-            mdl.commands[ k ] = mdl:AddCommand( string_lower( k ), v )
-        end
-    end
+    mdl.commands    = meta.commands.New( mdl )
 end
 
 -- Export

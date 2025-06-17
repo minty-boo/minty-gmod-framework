@@ -4,7 +4,8 @@
 local mod = mfwk.Module()
 
 -- Cache
-local isfunction = isfunction
+local types_IsFunction  = mfwk.types.IsFunction
+local types_IsTable     = mfwk.types.IsTable
 
 -- Variables
 local meta      = {}
@@ -21,7 +22,7 @@ function meta.__index( self, k )
     
     -- Existing property?
     if property then
-        if isfunction( property.get ) then return property.get( parent ) end
+        if types_IsFunction( property.get ) then return property.get( parent ) end
         return property.get
     end
 end
@@ -39,7 +40,7 @@ function meta.__newindex( self, k, v )
         end
 
         -- Setter function?
-        if isfunction( property.set ) then
+        if types_IsFunction( property.set ) then
             property.set( parent, v )
             return
         end
@@ -54,7 +55,7 @@ function meta.__newindex( self, k, v )
     property = {}
 
     -- Read-only?
-    if not istable( v ) then
+    if ( not types_IsTable( v ) ) then
         property.get = v
         property.set = false
     else
@@ -72,7 +73,7 @@ function mod.New( parent, init )
     registry.properties[ new ] = {}
     registry.parent[ new ] = parent
 
-    if istable( init ) then
+    if types_IsTable( init ) then
         for k, v in pairs( init ) do
             new[ k ] = v
         end

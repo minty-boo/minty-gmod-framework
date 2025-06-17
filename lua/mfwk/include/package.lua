@@ -20,7 +20,10 @@ local PATH_PACKAGE              = "package.lua"
 local ROOT_LOCAL                = "lua"
 local ROOT_MOUNTED              = ""
 
-local LUA_REALMS    = { "shared", "server", "client" }
+local LUA_REALMS_IV = { "shared", "server", "client" }
+local LUA_REALMS_VI = {}
+
+for i, v in ipairs( LUA_REALMS_IV ) do LUA_REALMS_VI[ v ] = i end
 
 local REALM_SHARED  = 1
 local REALM_SERVER  = 2
@@ -62,7 +65,7 @@ end
 
 -- Utility: indexing
 local function index_recursive( root, sub, game_path, realm, index )
-    local realm_length = ( #LUA_REALMS[ realm ] + 2 )
+    local realm_length = ( #LUA_REALMS_IV[ realm ] + 2 )
 
     local files, _ = file_Find( path_Combine( root, sub, "*.lua" ), game_path )
     local _, folders = file_Find( path_Combine( root, sub,  "*" ), game_path )
@@ -91,6 +94,7 @@ local function index_files( root, game_path )
 
     -- Top-level
     local files, _ = file_Find( path_Combine( root, "*.lua" ), game_path )
+    local _, folders = file_Find( path_Combine( root, "*" ), game_path )
 
     for _, name in ipairs( files ) do
         local file = path_Combine( root, name )
@@ -99,8 +103,14 @@ local function index_files( root, game_path )
         index[ #index + 1 ] = { path_WithoutExtension( name ), file }
     end
 
-    -- Recursive
-    for realm, folder in ipairs( LUA_REALMS ) do
+    for _, folder in ipairs( folders ) do
+        if ( not LUA_REALMS_VI[ folder ] ) then
+            index_recursive( root, folder, game_path, REALM_SHARED, index )
+        end
+    end
+
+    -- Realms
+    for realm, folder in ipairs( LUA_REALMS_IV ) do
         index_recursive( root, folder, game_path, realm, index )
     end
 
@@ -138,11 +148,6 @@ end
 
 local function find_mounted()
     return find_packages( ROOT_MOUNTED, GAME_PATH_MOUNTED )
-end
-
--- Utility: register
-local function register_packages( packages )
-    
 end
 
 -- Functions

@@ -4,159 +4,168 @@
 local mod = {}
 
 -- Cache
-local ipairs            = ipairs
-local pairs             = pairs
+local debug_getinfo     = debug.getinfo
 local path_Combine      = mfwk.path.Combine
-local string_Split      = mfwk.string.Split
-local table_insert      = table.insert
+local setmetatable      = setmetatable
+local string_Hash       = mfwk.string.Hash
 local types_IsFunction  = mfwk.types.IsFunction
 
+-- Constants
+local GUID_SALT     = "module"
+local STRING_EMPTY  = ""
+
 -- Variables
-local index     = {}
-local meta      = {}
-local registry  = {}
+local environment   = false
+local index         = {}
+local meta          = {}
+local registry      = {}
+local lut           = {}
 
--- Index: module
-function index.Include( self, k )
-    self.__dependencies[ k ] = true
+-- Utility
+local function apply_environment( mdl )
+    if ( not environment ) then return end
+
+    for k, v in pairs( environment ) do
+        rawset( mdl, k, v )
+    end
+
+    environment = false
 end
 
-function index.Index( self, tbl )
-    for k, v in pairs( tbl ) do
-        self.__index[ k ] = v
+local function get_module_source()
+    local level = 2
+    
+    while true do
+        local candidate = debug_getinfo( level, "nS" )
+        if ( not candidate ) then return STRING_EMPTY end
+        if ( candidate.namewhat == STRING_EMPTY ) then return candidate.source end
+
+        level = level + 1
     end
 end
 
-function index.Init( self, tbl )
-    for k, v in pairs( tbl ) do
-        self.__init_env[ k ] = v
-    end
+local function include_module( entry )
+    if entry.module then return entry.module end
+
+    environment = {
+        __name  = entry.name,
+        __path  = entry.path,
+        __root  = entry.root,
+    }
+
+    local mdl = include( entry.file )
+    entry.module = mdl
+    
+    return mdl
 end
 
--- Meta: module
+-- Index
+function index.Include( self, path )
+    local entry = registry[ path ]
+    if ( not entry ) then ErrorNoHaltWithStack( "Could not resolve module with name '" .. path .. "'!" ) return end
+    
+    -- Get from registry, otherwise load file
+    local mdl = include_module( entry )
+
+    -- Hook post-include
+    if types_IsFunction( mdl.dependency.Include ) then
+        mdl.dependency.Include( self )
+    end
+
+    -- Hook constructor
+    if types_IsFunction( mdl.dependency.Initialize ) then
+        local __constructor = self.__constructor
+        
+        self.__constructor = function( self )
+            mdl.dependency.Initialize( self )
+            __constructor( self )
+        end
+    end
+
+    -- Hook destructor
+    if types_IsFunction( mdl.dependency.Finalize ) then
+        local __destructor = self.__destructor
+        
+        self.__destructor = function( self )
+            mdl.dependency.Finalize( self )
+            __destructor( self )
+        end
+    end
+
+    return mdl
+end
+
+-- Meta
 function meta.__index( self, k )
     if index[ k ] then return index[ k ] end
-    if self.__index[ k ] then return self.__index[ k ] end
-
-    if ( not self.__initialized ) then
-        rawset( self, k, {} )
-        return self[ k ]
-    end
 end
 
 -- Functions
-function mod.Get( name )
-    return registry[ name ]
+function mod.GUID()
+    return string_Hash( GUID_SALT .. get_module_source() )
 end
 
 function mod.Initialize()
-    local ordered = {}
+    for k, v in pairs( registry ) do
+        if ( not v.module ) then include_module( v ) end
 
-    -- Determine load order
-    for name, mdl in pairs( registry ) do
-        local insert = true
+        v.module:__constructor()
+        v.module:Initialize()
 
-        -- Register includes
-        for k, _ in pairs( mdl.__dependencies ) do
-            local parts = { string_Split( k, '/' ) }
-            local count = #parts
-
-            if ( not mdl.__includes[ parts[ 1 ] ] ) then mdl.__includes[ parts[ 1 ] ] = {} end
-            local tail = mdl.__includes[ parts[ 1 ] ]
-
-            for i = 2, ( count - 1 ) do
-                if ( not tail[ parts[ i ] ] ) then tail[ parts[ i ] ] = {} end
-                tail = tail[ parts[ i ] ]
-            end
-
-            tail[ parts[ count ] ] = registry[ k ]
-        end
-
-        -- Check dependencies
-        for i = #ordered, 1, -1 do
-            if mdl.__dependencies[ ordered[ i ].__path ] then
-                table_insert( ordered, i + 1, mdl )
-                insert = false
-                break
-            end
-        end
-
-        -- Check depends
-        for i, depends in ipairs( ordered ) do
-            if depends.__dependencies[ mdl.__path ] then
-                table_insert( ordered, i, mdl )
-                insert = false
-                break
-            end
-        end
-
-        -- Insert anyway?
-        if insert then table_insert( ordered, mdl ) end
-    end
-
-    -- Initialize modules
-    for i, mdl in ipairs( ordered ) do
-        -- Set init environment
-        mdl.Initialize = setfenv( mdl.Initialize, mdl.__init_env )
-
-        -- Hook constructors/destructors
-        for k, _ in pairs( mdl.__dependencies ) do
-            local v = registry[ k ]
-
-            if types_IsFunction( v.Constructor ) then
-                local initialize = mdl.Initialize
-                
-                mdl.Initialize = function( self )
-                    v.Constructor( self )
-                    initialize( self )
-                end
-            end
-
-            if types_IsFunction( v.Destructor ) then
-                local finalize = mdl.Finalize
-
-                mdl.Finalize = function( self )
-                    v.Destructor( self )
-                    finalize( self )
-                end
-            end
-        end
-
-        -- Initialize module
-        mdl:Initialize()
-        mdl.__initialized = true
+        v.module.__initialized = true
     end
 end
 
 function mod.New()
-    local new = {
-        __constructor   = false,
-        __dependencies  = {},
-        __includes      = {},
-        __index         = {},
-        __init_env      = setmetatable( {}, { __index = _G } ),
+    local guid  = mod.GUID()
+    local mdl   = lut[ guid ]
+
+    -- New
+    local new   = {
+        __guid          = guid,
+
+        __constructor   = function() end,
+        __destructor    = function() end,
         __initialized   = false,
 
-        Finalize        = function() end,
+        dependency      = {},
+
         Initialize      = function() end,
+        Finalize        = function() end,
     }
 
-    new.__init_env.mod  = new
+    apply_environment( new )
+    new = setmetatable( new, meta )
 
-    return setmetatable( new, meta ), new.__includes
+    -- Reload?
+    if mdl then
+        if mdl.__initialized then mdl:Finalize() end
+
+        rawset( new, "__name", mdl.__name )
+        rawset( new, "__path", mdl.__path )
+        rawset( new, "__root", mdl.__root )
+
+        registry[ mdl.__path ].module = new
+
+        if mdl.__initialized then mdl:Initialize() end
+    end
+
+    lut[ guid ] = new
+
+    return new
 end
 
 function mod.Register( file, name, package )
-    -- Include module
-    local mdl = include( file )
-    mdl.__name = name
-    mdl.__root = package.Name
-    mdl.__path = path_Combine( mdl.__root, mdl.__name )
-
-    mdl.debug = mfwk.debug.New( mdl )
-
-    -- Add to registry
-    registry[ mdl.__path ] = mdl
+    local path = path_Combine( package.Name, name )
+    
+    registry[ path ] = {
+        file    = file,
+        module  = false,
+        name    = name,
+        package = package,
+        path    = path,
+        root    = package.Name,
+    }
 end
 
 -- Export

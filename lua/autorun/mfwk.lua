@@ -7,13 +7,16 @@ mfwk = mfwk or {}
 local ipairs = ipairs
 
 -- Constants
+local EXTENSION_SEPARATOR   = "."
+local PATH_SEPARATOR        = "/"
+
 local LUA_INCLUDES  = {
     "types",
     "string",
     "path",
     "table",
-    "player",
     "debug",
+    "player",
     "module",
     "package",
 }
@@ -28,10 +31,10 @@ local function path_combine( ... )
     local path = nil
     
     for i, v in ipairs( args ) do
-        if ( i == count ) and ( v[ 1 ] == '.' ) then
+        if ( i == count ) and ( v[ 1 ] == EXTENSION_SEPARATOR ) then
             path = ( path and ( path .. v ) or v )
         else
-            path = ( path and ( path .. '/' .. v ) or v )
+            path = ( path and ( path .. PATH_SEPARATOR .. v ) or v )
         end
     end
 

@@ -4,7 +4,7 @@
 local mod = {}
 
 -- Cache
-local type = type
+local type      = type
 
 -- Utility
 local function type_check( object, T ) return ( type( object ) == T ) end
@@ -18,6 +18,13 @@ function mod.IsTable( object ) return type_check( object, "table" ) end
 function mod.IsType( object, T ) return type_check( object, T ) end
 
 function mod.IsNil( object ) return ( object == nil ) end
+
+-- Compatibility: GLua
+mod.IsBoolean   = isbool or mod.IsBoolean
+mod.IsFunction  = isfunction or mod.IsFunction
+mod.IsNumber    = isnumber or mod.IsNumber
+mod.IsString    = isstring or mod.IsString
+mod.IsTable     = istable or mod.IsTable
 
 -- Export
 return mod

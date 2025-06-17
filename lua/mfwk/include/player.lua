@@ -14,6 +14,7 @@ local unpack            = unpack
 
 -- Functions
 function mod.FindByName( name )
+    name = string_lower( name )
     local players = {}
     
     -- Get all player names

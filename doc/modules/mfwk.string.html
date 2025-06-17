@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>mfwk.string</strong></li>
+  <li><a href="../modules/mfwk.table.html">mfwk.table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>mfwk.string</code></h1>
+<p>Convenience functions for strings.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#BeginsWith">BeginsWith(str, prefix)</a></td>
+	<td class="summary">Checks whether <code>str</code> begins with <code>prefix</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#EndsWith">EndsWith(str, suffix)</a></td>
+	<td class="summary">Checks whether <code>str</code> ends with <code>suffix</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Hash">Hash(str)</a></td>
+	<td class="summary">Calculates the djb2 hash for <code>str</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Trim">Trim(str)</a></td>
+	<td class="summary">Removes all leading and trailing whitespace from <code>str</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Split">Split(str, delimiter[, count])</a></td>
+	<td class="summary">Splits <code>str</code> by <code>delimiter</code>, optionally a maximum of <code>count</code> times.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Explode">Explode(str, delimiter, count)</a></td>
+	<td class="summary">Same as <a href="../modules/mfwk.string.html#Split">mfwk.string.Split</a>, but returns a variable amount of strings.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "BeginsWith"></a>
+    <strong>BeginsWith(str, prefix)</strong>
+    </dt>
+    <dd>
+    Checks whether <code>str</code> begins with <code>prefix</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         String to check.
+        </li>
+        <li><span class="parameter">prefix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Prefix to check for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+        Does <code>str</code> begin with <code>prefix</code>?
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "EndsWith"></a>
+    <strong>EndsWith(str, suffix)</strong>
+    </dt>
+    <dd>
+    Checks whether <code>str</code> ends with <code>suffix</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         String to check.
+        </li>
+        <li><span class="parameter">suffix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Suffix to check for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">bool</span></span>
+        Does <code>str</code> end with <code>suffix</code>?
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Hash"></a>
+    <strong>Hash(str)</strong>
+    </dt>
+    <dd>
+    Calculates the djb2 hash for <code>str</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         String to hash.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Hash of the string.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Trim"></a>
+    <strong>Trim(str)</strong>
+    </dt>
+    <dd>
+    Removes all leading and trailing whitespace from <code>str</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         String to trim.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Trimmed result.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Split"></a>
+    <strong>Split(str, delimiter[, count])</strong>
+    </dt>
+    <dd>
+    Splits <code>str</code> by <code>delimiter</code>, optionally a maximum of <code>count</code> times.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         String to split.
+        </li>
+        <li><span class="parameter">delimiter</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Character to split by.
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">number</span></span>
+         Maximum amount of times to split <code>str</code>.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">{string,...}</a></span>
+        A table of strings split by <code>delimiter</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Explode"></a>
+    <strong>Explode(str, delimiter, count)</strong>
+    </dt>
+    <dd>
+    Same as <a href="../modules/mfwk.string.html#Split">mfwk.string.Split</a>, but returns a variable amount of strings.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">str</span>
+
+
+
+        </li>
+        <li><span class="parameter">delimiter</span>
+
+
+
+        </li>
+        <li><span class="parameter">count</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/mfwk.string.html#Split">mfwk.string.Split</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-06-17 20:49:27 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
