@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>mfwk.path</strong></li>
+  <li><a href="../modules/mfwk.registry.html">mfwk.registry</a></li>
+  <li><a href="../modules/mfwk.string.html">mfwk.string</a></li>
+  <li><a href="../modules/mfwk.table.html">mfwk.table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>mfwk.path</code></h1>
+<p>Convenience functions for paths.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Combine">Combine(Variable)</a></td>
+	<td class="summary">Concatenates arguments into a file path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Directory">Directory(path)</a></td>
+	<td class="summary">Returns the sub-directory of <a href="../modules/mfwk.path.html">path</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#File">File(path)</a></td>
+	<td class="summary">Returns the file name and extension of <a href="../modules/mfwk.path.html">path</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#FileWithoutExtension">FileWithoutExtension(path)</a></td>
+	<td class="summary">Returns the file name of <a href="../modules/mfwk.path.html">path</a>, without file extension.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#WithoutExtension">WithoutExtension(path)</a></td>
+	<td class="summary">Trims trailing extension from <a href="../modules/mfwk.path.html">path</a>, if it has one.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Combine"></a>
+    <strong>Combine(Variable)</strong>
+    </dt>
+    <dd>
+    Concatenates arguments into a file path.
+ E.g. <code>mfwk.path.Combine( &quot;foo&quot;, &quot;bar&quot;, &quot;module&quot;, &quot;.lua&quot; )</code> will return <code>foo/bar/module.lua</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">Variable</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">{string,...}</a></span>
+         amount of path parts.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Concatenated path.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Directory"></a>
+    <strong>Directory(path)</strong>
+    </dt>
+    <dd>
+    Returns the sub-directory of <a href="../modules/mfwk.path.html">path</a>.
+ E.g. <code>mfwk.path.Directory( &quot;foo/bar/module.lua&quot; )</code> will return <code>foo/bar</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Path to get the sub-directory of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Sub-directory of <a href="../modules/mfwk.path.html">path</a>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "File"></a>
+    <strong>File(path)</strong>
+    </dt>
+    <dd>
+    Returns the file name and extension of <a href="../modules/mfwk.path.html">path</a>.
+ E.g. <code>mfwk.path.File( &quot;foo/bar/module.lua&quot; )</code> will return <code>module.lua</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Path to get the file name and extension of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        File name and extension after the last path separator.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FileWithoutExtension"></a>
+    <strong>FileWithoutExtension(path)</strong>
+    </dt>
+    <dd>
+    Returns the file name of <a href="../modules/mfwk.path.html">path</a>, without file extension.
+ E.g. <code>mfwk.path.FileWithoutExtension( &quot;foo/bar/module.lua&quot; )</code> will return <a href="https://www.lua.org/manual/5.4/manual.html#pdf-module">module</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Path to get the file name of.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        File name after the last path separator, without extension.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WithoutExtension"></a>
+    <strong>WithoutExtension(path)</strong>
+    </dt>
+    <dd>
+    Trims trailing extension from <a href="../modules/mfwk.path.html">path</a>, if it has one.
+ E.g. <code>mfwk.path.WithoutExtension( &quot;foo/bar/module.lua&quot; )</code> will return <code>foo/bar/module</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Path to trim.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Path without trailing extension.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-06-20 00:34:56 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

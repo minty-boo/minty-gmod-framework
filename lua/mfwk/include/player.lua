@@ -2,6 +2,7 @@
 -- (c) ppr_minty 2025
 
 local mod = {}
+mfwk.Requires( "string", "table" )
 
 -- Cache
 local player_GetAll     = player.GetAll

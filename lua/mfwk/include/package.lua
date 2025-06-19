@@ -2,6 +2,9 @@
 -- (c) ppr_minty 2025
 
 local mod = {}
+mfwk.Requires( "class", "module", "path" )
+
+mod.Package = mfwk.class.New()
 
 -- Cache
 local file_Exists               = file.Exists
@@ -42,8 +45,6 @@ local function package_info( root, game_path )
     AddCSLuaFile( package_file )
     
     local info = include( package_file )
-    info.Root = modules_path
-
     return info
 end
 
@@ -130,10 +131,10 @@ local function find_packages( root, game_path )
 
             -- Valid package?
             if info then
-                info.Name = ( info.Name or name ) -- Default to folder name
-                info.Modules = index_files( folder, game_path ) -- Index modules
+                name = ( info.Name or name ) -- Default to folder name
+                local index = index_files( folder, game_path ) -- Index modules
 
-                packages[ #packages + 1 ] = info
+                packages[ #packages + 1 ] = mod.Package( name, index )
             end
         end
     end
@@ -150,6 +151,32 @@ local function find_mounted()
     return find_packages( ROOT_MOUNTED, GAME_PATH_MOUNTED )
 end
 
+-- Class: package
+local class     = mod.Package
+class.Name      = { set = false }
+class.Index     = { set = false, value = {} }
+class.Modules   = {}
+
+function class.Constructor( self, name, index )
+    self.Name = name
+    self.Index = index
+end
+
+function class.Load( self )
+    -- Iterate over package index
+    for _, v in self.Index:ipairs() do
+        self.Modules[ v[ 1 ] ] = mfwk.ModuleInfo( self, v[ 1 ], v[ 2 ] )
+    end
+
+    -- Load modules
+    for k, v in pairs( self.Modules ) do
+        v:Load()
+    end
+
+    -- Make immutable
+    self.Modules = {{ self.Modules }}
+end
+
 -- Functions
 function mod.Find()
     local packages = {}
@@ -157,12 +184,6 @@ function mod.Find()
     for _, package in ipairs( find_local() ) do packages[ #packages + 1 ] = package end
 
     return packages
-end
-
-function mod.Register( package )
-    for _, v in ipairs( package.Modules ) do
-        mfwk.module.Register( v[ 2 ], v[ 1 ], package )
-    end
 end
 
 -- Export

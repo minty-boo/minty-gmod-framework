@@ -38,7 +38,7 @@ function mod.BeginsWith( str, prefix )
     return true
 end
 
---- Checks whether `str` ends with `prefix`.
+--- Checks whether `str` ends with `suffix`.
 -- @tparam string str String to check.
 -- @tparam string suffix Suffix to check for.
 -- @treturn bool Does `str` end with `suffix`?

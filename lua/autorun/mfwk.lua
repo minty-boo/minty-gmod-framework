@@ -1,25 +1,18 @@
 -- SPDX-License-Identifier: MIT
 -- (c) ppr_minty 2025
 
-mfwk = mfwk or {}
+mfwk = {}
 
 -- Cache
-local ipairs = ipairs
+local include       = include
+local ipairs        = ipairs
+local pairs         = pairs
+local string_sub    = string.sub
+local string_upper  = string.upper
 
 -- Constants
 local EXTENSION_SEPARATOR   = "."
 local PATH_SEPARATOR        = "/"
-
-local LUA_INCLUDES  = {
-    "types",
-    "string",
-    "path",
-    "table",
-    "debug",
-    "player",
-    "module",
-    "package",
-}
 
 local INCLUDES_ROOT = "mfwk/include"
 
@@ -41,29 +34,51 @@ local function path_combine( ... )
     return path
 end
 
+local function path_without_extension( path )
+    for i = #path, 1, -1 do
+        if ( path[ i ] == EXTENSION_SEPARATOR ) then
+            return string_sub( path, 1, i - 1 )
+        end
+    end
+
+    return path
+end
+
 -- Utility: load
+local function load_include( name )
+    if mfwk[ name ] then return end
+
+    -- Register include
+    local inc, aliases = include( path_combine( INCLUDES_ROOT, name, ".lua" ) )
+    mfwk[ name ] = inc
+
+    -- Register aliases
+    if aliases then
+        for k, v in pairs( aliases ) do
+            mfwk[ k ] = v
+        end
+    end
+end
+
 local function load_includes()
-    for _, v in ipairs( LUA_INCLUDES ) do
-        local path = path_combine( INCLUDES_ROOT, v, ".lua" )
-
-        if SERVER then AddCSLuaFile( path ) end
-        mfwk[ v ] = include( path )
+    local files, _ = file.Find( path_combine( INCLUDES_ROOT, "*.lua" ), "LUA" )
+    
+    for _, k in ipairs( files ) do
+        local name = path_without_extension( k )
+        load_include( name )
     end
 end
-
-local function load_packages()
-    for _, package in ipairs( mfwk.package.Find() ) do
-        mfwk.package.Register( package )
-    end
-
-    mfwk.module.Initialize()
-end
-
--- Load: includes
-load_includes()
 
 -- Functions
-mfwk.Module = mfwk.module.New
+function mfwk.Requires( ... )
+    for _, k in ipairs( { ... } ) do
+        load_include( k )
+    end
+end
 
--- Load: packages
-load_packages()
+-- Load
+load_includes()
+
+-- Debug
+local packages = mfwk.package.Find()
+packages[ 1 ]:Load()

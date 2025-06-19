@@ -6,6 +6,7 @@
 -- @alias mod
 
 local mod = {}
+mfwk.Requires( "types" )
 
 -- Cache
 local pairs             = pairs
@@ -31,7 +32,7 @@ local cache = {
 --- Checks whether `tbl` contains `obj`.
 -- @tparam table tbl Table to check.
 -- @param obj Value to search for.
--- @return bool Does `tbl` contain `obj`?
+-- @treturn bool Does `tbl` contain `obj`?
 function mod.Contains( tbl, obj )
     for _, v in pairs( tbl ) do if ( v == obj ) then return true end end
     return false
@@ -131,6 +132,26 @@ function mod.FindParent( tbl, root, exclude )
             if p then return p, q end
         end
     end
+end
+
+--- Checks if `tbl` only contains whitelisted `keys`.
+-- @tparam table tbl Table to check.
+-- @tparam table keys Keys to check.
+-- @treturn bool Only contains `keys`?
+function mod.OnlyKeys( tbl, keys )
+    local count = 0
+    local lut = {}
+    
+    -- Build look-up
+    for _, v in ipairs( keys ) do lut[ v ] = true end
+
+    -- Check keys
+    for k, _ in pairs( tbl ) do
+        if ( not lut[ k ] ) then return false end
+        count = count + 1
+    end
+
+    return ( count > 0 )
 end
 
 --- Removes an entry from `tbl`, by number index or value.
