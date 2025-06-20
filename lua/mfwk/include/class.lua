@@ -197,6 +197,23 @@ function index.instance.pairs( self )
     return pairs( values )
 end
 
+function index.instance.rawget( self, k )
+    local member = registry.instance[ self ].members[ k ]
+    if member then return member.value end
+end
+
+function index.instance.rawset( self, k, v )
+    local entry     = registry.instance[ self ]
+    local member    = entry.members[ k ]
+
+    if member then
+        member.value = v
+        return
+    end
+
+    entry.members[ k ] = meta.member.New( MEMBER_FIELD, nil, nil, false, v )
+end
+
 -- Meta: instance
 function meta.instance.__index( self, k )
     if index.instance[ k ] then return index.instance[ k ] end
@@ -212,6 +229,11 @@ function meta.instance.__index( self, k )
 end
 
 function meta.instance.__newindex( self, k, v )
+    if index.instance[ k ] then
+        ErrorNoHaltWithStack( "Tried to override meta-method '" .. k .. "'!" )
+        return
+    end
+
     local entry = registry.instance[ self ]
 
     -- Existing member?
@@ -363,13 +385,29 @@ function meta.immutable.__newindex( self, k, _ )
 end
 
 function meta.immutable.New( tbl )
+    -- Cached?
+    if registry.immutable[ tbl ] then return registry.immutable[ table ] end
+    
+    -- New
     local new = {}
+
+    registry.immutable[ tbl ] = new
     registry.immutable[ new ] = tbl
 
     return setmetatable( new, meta.immutable )
 end
 
 -- Functions
+function mod.ipairs( tbl )
+    if tbl.ipairs then return tbl:ipairs() end
+    return ipairs( tbl )
+end
+
+function mod.pairs( tbl )
+    if tbl.pairs then return tbl:pairs() end
+    return pairs( tbl )
+end
+
 function mod.New( base )
     return meta.class.New( base )
 end

@@ -61,6 +61,8 @@ function mod.New( handle )
     -- Meta
     function meta.__index( self, k )
         if index[ k ] then return index[ k ] end
+        if ( not entry[ k ] ) then return end
+
         return entry[ k ].value
     end
 
@@ -74,10 +76,12 @@ function mod.New( handle )
 
             -- Deflate
             local inflated = entry
-            local deflated = setmetatable( {}, meta )
+            local deflated = {}
             
             for k, v in pairs( inflated ) do
-                deflated[ k ] = v.value
+                if ( v.value ~= nil ) then
+                    deflated[ k ] = v
+                end
             end
 
             garbage[ handle ] = 0
